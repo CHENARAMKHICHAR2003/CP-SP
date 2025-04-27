@@ -339,7 +339,7 @@ async def pwwp_callback(bot, callback_query):
     await callback_query.answer()
     
     if user_id not in auth_users:
-        await bot.send_message(callback_query.message.chat.id, f"**You Are Not Subscribed To This Bot\nContact - @pwextractowner**")
+        await bot.send_message(callback_query.message.chat.id, f"**You Are Not Subscribed To This Bot \nlow price.... text leech bot 🥳 @Text_leech_cp2_bot 👽available with \nContact - @COURSES_HUB2_BOT 🥇**")
         return
         
     THREADPOOL.submit(asyncio.run, process_pwwp(bot, callback_query.message, user_id))
