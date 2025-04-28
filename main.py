@@ -32,6 +32,7 @@ from pyrogram.raw.functions.channels import GetParticipants
 from config import api_id, api_hash, bot_token, auth_users
 from datetime import datetime
 import time
+import json 
 from concurrent.futures import ThreadPoolExecutor
 THREADPOOL = ThreadPoolExecutor(max_workers=1000)
 import logging
@@ -333,6 +334,32 @@ async def get_pwwp_all_todays_schedule_content(session: aiohttp.ClientSession, s
 
     return all_content
     
+    import json
+
+# Free users ko file me store karne aur load karne ke liye functions
+def load_auth_users():
+    try:
+        with open("auth_users.json", "r") as file:
+            return set(json.load(file))
+    except FileNotFoundError:
+        return set()  # Agar file nahi hai to empty set return karo
+
+def save_auth_users(auth_users):
+    with open("auth_users.json", "w") as file:
+        json.dump(list(auth_users), file)
+
+# Initial load of free users from file
+auth_users = load_auth_users()
+
+# /free command
+@bot.on_message(filters.command("free"))
+async def free_command(bot, message):
+    user_id = message.from_user.id
+    auth_users.add(user_id)  # User ko free list me add karo
+    save_auth_users(auth_users)  # List ko file me save karo
+    await message.reply_text("✅ You have been given free access!")
+
+# Callback function for pwwp
 @bot.on_callback_query(filters.regex("^pwwp$"))
 async def pwwp_callback(bot, callback_query):
     user_id = callback_query.from_user.id
@@ -341,11 +368,10 @@ async def pwwp_callback(bot, callback_query):
     if user_id not in auth_users:
         await bot.send_message(callback_query.message.chat.id, f"**You Are Not Subscribed To This Bot \nlow price.... text leech bot 🥳 @Text_leech_cp2_bot 👽available with \nContact - @COURSES_HUB2_BOT 🥇**")
         return
-        
+    
     THREADPOOL.submit(asyncio.run, process_pwwp(bot, callback_query.message, user_id))
 
 async def process_pwwp(bot: Client, m: Message, user_id: int):
-
     editable = await m.reply_text("**Enter Woking Access Token\n\nOR\n\nEnter Phone Number**")
 
     try:
